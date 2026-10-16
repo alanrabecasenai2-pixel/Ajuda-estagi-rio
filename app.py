@@ -5,43 +5,108 @@ import PyPDF2
 
 # Configuração da página do Streamlit
 st.set_page_config(
-    page_title="ChatBot RAG - Microsoft Foundry",
-    page_icon="🤖",
-    layout="wide"
+    page_title="Mentor Virtual de Estágio | RAG ChatBot",
+    page_icon="🚀",
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
-# 1. CSS Customizado para estilizar a borda da aplicação e o chat
+# 1. CSS Customizado - Visual Moderno, Jovem e Profissional
 st.markdown("""
     <style>
-    /* Borda estilizada ao redor do container principal */
+    /* Importação de fonte moderna */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    html, body, [class*="css"]  {
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Fundo da aplicação */
+    .stApp {
+        background-color: #F8FAFC;
+    }
+
+    /* Borda e Container Principal com Gradiente */
     .main .block-container {
-        border: 2px solid #4A90E2;
-        border-radius: 12px;
-        padding: 2rem;
-        background-color: #FAFAFA;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        border: 2px solid transparent;
+        background-image: linear-gradient(#FFFFFF, #FFFFFF), linear-gradient(135deg, #6366F1, #A855F7, #EC4899);
+        background-origin: border-box;
+        background-clip: padding-box, border-box;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.1), 0 8px 10px -6px rgba(99, 102, 241, 0.05);
+        margin-top: 1rem;
+        margin-bottom: 2rem;
     }
-    
-    /* Estilização da barra lateral */
+
+    /* Estilização da Barra Lateral */
     [data-testid="stSidebar"] {
-        background-color: #F0F2F6;
-        border-right: 1px solid #E0E0E0;
+        background: linear-gradient(180deg, #1E1B4B 0%, #312E81 100%);
+        color: #FFFFFF;
     }
-    
-    /* Títulos e cabeçalhos */
-    h1, h2, h3 {
-        color: #2C3E50;
+
+    [data-testid="stSidebar"] * {
+        color: #F1F5F9 !important;
+    }
+
+    /* Card de Dicas na Barra Lateral */
+    .sidebar-card {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        padding: 1rem;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Header e Títulos */
+    .main-title {
+        background: linear-gradient(90deg, #4F46E5, #7C3AED, #EC4899);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 800;
+        font-size: 2.3rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .sub-title {
+        color: #64748B;
+        font-size: 1.05rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Badges de Destaque */
+    .badge {
+        display: inline-block;
+        background: #EEF2FF;
+        color: #4F46E5 !important;
+        font-weight: 600;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Estilização das Mensagens do Chat */
+    [data-testid="stChatMessage"] {
+        border-radius: 14px;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    /* Estilo do Input de Texto */
+    .stChatInputContainer {
+        border-radius: 14px !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
 # 2. Configuração da API (Microsoft Foundry / Azure OpenAI)
 API_KEY = "6t2pTNsmNafDyo53MDAFIrvvQRBZXP7dLcr5j3TLxMS34LQVq3ZUJQQJ99CHACHYHv6XJ3w3AAAAACOGT7os"
-# ATENÇÃO: Certifique-se de que o nome abaixo é exatamente o NOME DO DEPLOYMENT criado no seu Azure AI Studio / Foundry
-DEPLOYMENT_NAME = "gpt-4.1-mini" 
+DEPLOYMENT_NAME = "gpt-4.1-mini"
 ENDPOINT = "https://marcelomaffeis-05082026-resource.services.ai.azure.com/"
 
-# Inicializando o cliente AzureOpenAI com versão de API atualizada
 try:
     client = AzureOpenAI(
         api_key=API_KEY,
@@ -51,19 +116,19 @@ try:
 except Exception as e:
     st.error(f"Erro ao inicializar o cliente Azure OpenAI: {e}")
 
-# Inicialização do st.session_state para histórico e contexto do arquivo
+# Inicialização do st.session_state
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
 if "document_text" not in st.session_state:
     st.session_state.document_text = ""
 
-# 3. Upload de Arquivos na Barra Lateral e Sistema RAG Básico
+# 3. Barra Lateral (Upload de Arquivos & Guia do Estagiário)
 with st.sidebar:
-    st.header("📄 Base de Conhecimento (RAG)")
-    st.markdown("Envie um arquivo PDF ou TXT para alimentar o contexto do ChatBot.")
+    st.markdown("## 📚 Hub do Estagiário")
+    st.markdown("Alimente seu assistente com manuais, procedimentos, tarefas ou apostilas.")
     
-    uploaded_file = st.file_uploader("Escolha um arquivo", type=["pdf", "txt"])
+    uploaded_file = st.file_uploader(" Carregar Arquivo (PDF ou TXT)", type=["pdf", "txt"])
     
     if uploaded_file is not None:
         file_extension = uploaded_file.name.split(".")[-1].lower()
@@ -87,74 +152,52 @@ with st.sidebar:
                 
         if extracted_text:
             st.session_state.document_text = extracted_text
-            st.success(f"Arquivo '{uploaded_file.name}' carregado com sucesso!")
+            st.success(f"⚡ Arquivo '{uploaded_file.name}' pronto para uso!")
         else:
-            st.warning("O arquivo parece estar vazio ou o texto não pôde ser extraído.")
+            st.warning("O arquivo enviado parece estar sem texto extraível.")
             
     if st.session_state.document_text:
-        if st.button("Limpar Documento Carregado"):
+        if st.button("🗑️ Remover Documento", use_container_width=True):
             st.session_state.document_text = ""
             st.rerun()
 
-# 4. Interface Principal de Chat
-st.title("🤖 ChatBot Acadêmico - Microsoft Foundry")
-st.markdown("Converse com o assistente baseado no seu documento enviado.")
+    # Card Informativo para Estagiários
+    st.markdown("""
+        <div class="sidebar-card">
+            <h4>💡 Como aproveitar?</h4>
+            <ul>
+                <li>Envie manuais da empresa ou diretrizes de projetos.</li>
+                <li>Tire dúvidas rápidas sem precisar procurar em dezenas de páginas.</li>
+                <li>Peça resumos e passos práticos de execução.</li>
+            </ul>
+        </div>
+    """, unsafe_allow_html=True)
 
-# Exibição do histórico de mensagens
+# 4. Área Principal (Header & Chat)
+st.markdown('<span class="badge">🚀 Programa de Estágio - Assistente IA</span>', unsafe_allow_html=True)
+st.markdown('<h1 class="main-title">Mentor Virtual de Estágio</h1>', unsafe_allow_html=True)
+st.markdown('<p class="sub-title">Tire suas dúvidas sobre documentos, rotinas e tarefas com o poder da IA do Microsoft Foundry.</p>', unsafe_allow_html=True)
+
+# Exibição de Boas-Vindas / Sugestões caso o chat esteja vazio
+if not st.session_state.messages:
+    st.info("👋 **Olá! Sou o seu copiloto de aprendizado.** Mande uma mensagem abaixo ou envie um arquivo de apoio (PDF/TXT) na barra lateral para começarmos!")
+
+# Exibição das mensagens do chat
 for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
+    avatar_icon = "🎓" if message["role"] == "user" else "🤖"
+    with st.chat_message(message["role"], avatar=avatar_icon):
         st.markdown(message["content"])
 
 # Entrada do usuário
-if prompt := st.chat_input("Faça uma pergunta sobre o documento ou geral..."):
-    # Adiciona a mensagem do usuário ao histórico
+if prompt := st.chat_input("Pergunte algo sobre o documento carregado ou sobre suas tarefas..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
+    with st.chat_message("user", avatar="🎓"):
         st.markdown(prompt)
         
-    # Construção do Prompt com Lógica RAG
+    # Prompt de Sistema Focado em Estágio/Estudantes
     system_prompt = (
-        "Você é um assistente virtual prestativo e acadêmico. "
-        "Responda à pergunta do usuário com base no contexto fornecido abaixo. "
-        "Se a resposta não estiver presente no contexto, utilize seu conhecimento geral "
-        "mas avise que a informação não consta no documento carregado."
-    )
-    
-    context_content = st.session_state.document_text
-    
-    # Montagem das mensagens para a API do Azure OpenAI
-    messages_payload = [
-        {"role": "system", "content": system_prompt}
-    ]
-    
-    if context_content:
-        messages_payload.append({
-            "role": "system", 
-            "content": f"--- CONTEXTO DO DOCUMENTO ---\n{context_content}\n-----------------------------"
-        })
-        
-    # Adiciona o histórico recente da conversa para manter o fluxo
-    for msg in st.session_state.messages:
-        messages_payload.append({"role": msg["role"], "content": msg["content"]})
-        
-    # Chamada ao modelo no Azure
-    with st.chat_message("assistant"):
-        message_placeholder = st.empty()
-        message_placeholder.markdown("Pensando...")
-        
-        try:
-            response = client.chat.completions.create(
-                model=DEPLOYMENT_NAME,
-                messages=messages_payload,
-                temperature=0.3,
-                max_tokens=800
-            )
-            bot_response = response.choices[0].message.content
-            message_placeholder.markdown(bot_response)
-            
-            # Salva a resposta no histórico
-            st.session_state.messages.append({"role": "assistant", "content": bot_response})
-            
-        except Exception as e:
-            error_msg = f"Ocorreu um erro ao comunicar com a API do Azure OpenAI: {e}"
-            message_placeholder.error(error_msg)
+        "Você é um Mentor Virtual focado em apoiar estagiários e estudantes. "
+        "Seu tom deve ser amigável, motivador, claro e didático. "
+        "Responda à dúvida do usuário com base no contexto fornecido no documento carregado. "
+        "Se o documento não contiver a resposta completa, use seu conhecimento para ajudar, "
+        "mas informe
