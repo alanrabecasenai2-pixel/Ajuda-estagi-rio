@@ -14,19 +14,16 @@ st.set_page_config(
 # 1. CSS Customizado - Visual Moderno, Jovem e Profissional
 st.markdown("""
     <style>
-    /* Importação de fonte moderna */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
     html, body, [class*="css"]  {
         font-family: 'Inter', sans-serif;
     }
 
-    /* Fundo da aplicação */
     .stApp {
         background-color: #F8FAFC;
     }
 
-    /* Borda e Container Principal com Gradiente */
     .main .block-container {
         border: 2px solid transparent;
         background-image: linear-gradient(#FFFFFF, #FFFFFF), linear-gradient(135deg, #6366F1, #A855F7, #EC4899);
@@ -39,7 +36,6 @@ st.markdown("""
         margin-bottom: 2rem;
     }
 
-    /* Estilização da Barra Lateral */
     [data-testid="stSidebar"] {
         background: linear-gradient(180deg, #1E1B4B 0%, #312E81 100%);
         color: #FFFFFF;
@@ -49,7 +45,6 @@ st.markdown("""
         color: #F1F5F9 !important;
     }
 
-    /* Card de Dicas na Barra Lateral */
     .sidebar-card {
         background: rgba(255, 255, 255, 0.08);
         border: 1px solid rgba(255, 255, 255, 0.15);
@@ -59,7 +54,6 @@ st.markdown("""
         margin-bottom: 1rem;
     }
 
-    /* Header e Títulos */
     .main-title {
         background: linear-gradient(90deg, #4F46E5, #7C3AED, #EC4899);
         -webkit-background-clip: text;
@@ -75,7 +69,6 @@ st.markdown("""
         margin-bottom: 1.5rem;
     }
 
-    /* Badges de Destaque */
     .badge {
         display: inline-block;
         background: #EEF2FF;
@@ -87,17 +80,11 @@ st.markdown("""
         margin-bottom: 1rem;
     }
 
-    /* Estilização das Mensagens do Chat */
     [data-testid="stChatMessage"] {
         border-radius: 14px;
         padding: 1rem;
         margin-bottom: 0.75rem;
         box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-
-    /* Estilo do Input de Texto */
-    .stChatInputContainer {
-        border-radius: 14px !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -128,7 +115,7 @@ with st.sidebar:
     st.markdown("## 📚 Hub do Estagiário")
     st.markdown("Alimente seu assistente com manuais, procedimentos, tarefas ou apostilas.")
     
-    uploaded_file = st.file_uploader(" Carregar Arquivo (PDF ou TXT)", type=["pdf", "txt"])
+    uploaded_file = st.file_uploader("Carregar Arquivo (PDF ou TXT)", type=["pdf", "txt"])
     
     if uploaded_file is not None:
         file_extension = uploaded_file.name.split(".")[-1].lower()
@@ -161,7 +148,6 @@ with st.sidebar:
             st.session_state.document_text = ""
             st.rerun()
 
-    # Card Informativo para Estagiários
     st.markdown("""
         <div class="sidebar-card">
             <h4>💡 Como aproveitar?</h4>
@@ -178,26 +164,8 @@ st.markdown('<span class="badge">🚀 Programa de Estágio - Assistente IA</span
 st.markdown('<h1 class="main-title">Mentor Virtual de Estágio</h1>', unsafe_allow_html=True)
 st.markdown('<p class="sub-title">Tire suas dúvidas sobre documentos, rotinas e tarefas com o poder da IA do Microsoft Foundry.</p>', unsafe_allow_html=True)
 
-# Exibição de Boas-Vindas / Sugestões caso o chat esteja vazio
 if not st.session_state.messages:
     st.info("👋 **Olá! Sou o seu copiloto de aprendizado.** Mande uma mensagem abaixo ou envie um arquivo de apoio (PDF/TXT) na barra lateral para começarmos!")
 
-# Exibição das mensagens do chat
 for message in st.session_state.messages:
-    avatar_icon = "🎓" if message["role"] == "user" else "🤖"
-    with st.chat_message(message["role"], avatar=avatar_icon):
-        st.markdown(message["content"])
-
-# Entrada do usuário
-if prompt := st.chat_input("Pergunte algo sobre o documento carregado ou sobre suas tarefas..."):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user", avatar="🎓"):
-        st.markdown(prompt)
-        
-    # Prompt de Sistema Focado em Estágio/Estudantes
-    system_prompt = (
-        "Você é um Mentor Virtual focado em apoiar estagiários e estudantes. "
-        "Seu tom deve ser amigável, motivador, claro e didático. "
-        "Responda à dúvida do usuário com base no contexto fornecido no documento carregado. "
-        "Se o documento não contiver a resposta completa, use seu conhecimento para ajudar, "
-        "mas informe
+    avatar_icon = "🎓" if message
