@@ -37,15 +37,15 @@ st.markdown("""
 
 # 2. Configuração da API (Microsoft Foundry / Azure OpenAI)
 API_KEY = "6t2pTNsmNafDyo53MDAFIrvvQRBZXP7dLcr5j3TLxMS34LQVq3ZUJQQJ99CHACHYHv6XJ3w3AAAAACOGT7os"
-DEPLOYMENT_NAME = "gpt-4.1-mini"
+# ATENÇÃO: Certifique-se de que o nome abaixo é exatamente o NOME DO DEPLOYMENT criado no seu Azure AI Studio / Foundry
+DEPLOYMENT_NAME = "gpt-4.1-mini" 
 ENDPOINT = "https://marcelomaffeis-05082026-resource.services.ai.azure.com/"
 
-# Inicializando o cliente AzureOpenAI
-# O Azure OpenAI geralmente requer uma versão de API recente, como '2024-02-01' ou similar
+# Inicializando o cliente AzureOpenAI com versão de API atualizada
 try:
     client = AzureOpenAI(
         api_key=API_KEY,
-        api_version="2024-02-01-preview",
+        api_version="2024-08-01-preview",
         azure_endpoint=ENDPOINT
     )
 except Exception as e:
@@ -87,7 +87,7 @@ with st.sidebar:
                 
         if extracted_text:
             st.session_state.document_text = extracted_text
-            st.success(f"Arquivo '{uploaded_file.name}' carregado e processado com sucesso!")
+            st.success(f"Arquivo '{uploaded_file.name}' carregado com sucesso!")
         else:
             st.warning("O arquivo parece estar vazio ou o texto não pôde ser extraído.")
             
